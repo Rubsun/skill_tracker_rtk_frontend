@@ -11,6 +11,7 @@ const ChartBarIcon = () => <svg className="w-5 h-5 inline mr-2" fill="currentCol
 
 const ManagerDashboardPage = () => {
     const [tasks, setTasks] = useState([]);
+    const [employeeMap, setEmployeeMap] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useContext(AuthContext);
@@ -20,17 +21,30 @@ const ManagerDashboardPage = () => {
             if (!user?.token) { setLoading(false); return; }
             setLoading(true);
             try {
-                // Fetch tasks created by the manager (filtered by manager id on backend)
                 const tasksPromise = fetch(`${API_URL}/tasks/?skip=0&limit=100`, {
                     headers: { 'Authorization': `Bearer ${user.token}` },
                 });
-                
-                const tasksResponse = await tasksPromise;
+
+                const employeesPromise = fetch(`${API_URL}/employees`, {
+                    headers: { 'Authorization': `Bearer ${user.token}` },
+                });
+
+                const [tasksResponse, employeesResponse] = await Promise.all([tasksPromise, employeesPromise]);
                 
                 if (!tasksResponse.ok) throw new Error('Failed to fetch tasks');
+                if (!employeesResponse.ok) throw new Error('Failed to fetch employees');
                 
                 const tasksDataRaw = await tasksResponse.json();
                 const tasksData = Array.isArray(tasksDataRaw) ? tasksDataRaw[1] || [] : (tasksDataRaw?.items || tasksDataRaw || []);
+
+                const employeesRaw = await employeesResponse.json();
+                const employeesList = Array.isArray(employeesRaw) && Array.isArray(employeesRaw[1]) ? employeesRaw[1] : employeesRaw;
+                const map = {};
+                for (const e of employeesList) {
+                    const fullName = e.given_name ? `${e.given_name} ${e.family_name}` : e.email;
+                    map[e.id] = fullName;
+                }
+                setEmployeeMap(map);
 
                 setTasks(tasksData);
             } catch (err) {
@@ -43,7 +57,7 @@ const ManagerDashboardPage = () => {
     }, [user]);
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <div>Error: {error}</div>;
+    if (error) return <div className="text-red-500">Ошибка: {error}</div>;
 
     return (
         <div>
@@ -67,7 +81,7 @@ const ManagerDashboardPage = () => {
                         {tasks.map((task) => (
                             <tr key={task.id}>
                                 <td className="px-6 py-4">{task.title}</td>
-                                <td className="px-6 py-4">{task.employee_id || 'N/A'}</td>
+                                <td className="px-6 py-4">{employeeMap[task.employee_id] || task.employee_id || 'N/A'}</td>
                                 <td className="px-6 py-4">{task.progress}%</td>
                                 <td className="px-6 py-4 space-x-2">
                                     <Link to={`/manager/task/edit/${task.id}`} className="btn btn-sm btn-ghost"><EditIcon /> Редактировать</Link>
