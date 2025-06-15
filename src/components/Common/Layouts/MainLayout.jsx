@@ -37,35 +37,30 @@ const Sidebar = ({ user, onLogout, isOpen, toggleSidebar }) => {
                 <nav className="mt-6 px-2 flex flex-col h-full">
                     {user?.role === 'manager' && (
                         <>
-                            <Link to="/manager/home" className={commonLinkClasses} onClick={isOpen ? toggleSidebar : undefined}>
-                                <DashboardIcon /><span className="mx-3">My Courses</span>
-                            </Link>
                             <Link to="/manager/dashboard" className={commonLinkClasses} onClick={isOpen ? toggleSidebar : undefined}>
-                                <ChartIcon /><span className="mx-3">Dashboard</span>
+                                <DashboardIcon /><span className="mx-3">Мои задачи</span>
                             </Link>
-                            <Link to="/manager/course/new" className={commonLinkClasses} onClick={isOpen ? toggleSidebar : undefined}>
-                                <CourseIcon /><span className="mx-3">Create Course</span>
+                            <Link to="/manager/task/new" className={commonLinkClasses} onClick={isOpen ? toggleSidebar : undefined}>
+                                <CourseIcon /><span className="mx-3">Создать задачу</span>
                             </Link>
-                             {/* Add links for Course List, Assignment, Stats */}
                         </>
                     )}
                     {user?.role === 'employee' && (
                         <>
                             <Link to="/employee/dashboard" className={commonLinkClasses} onClick={isOpen ? toggleSidebar : undefined}>
-                                <DashboardIcon /><span className="mx-3">My Courses</span>
+                                <DashboardIcon /><span className="mx-3">Мои задачи</span>
                             </Link>
-                            {/* Add other employee links if needed */}
                         </>
                     )}
 
                     {/* Logout always available */}
                 <div className="mb-2 px-2 absolute bottom-0 left-0 w-full px-2 pb-4">
                         <div className="text-gray-400 text-sm mb-2 pl-4 break-words max-w-[180px]">
-                            Logged in as:<br />
+                            Вы вошли как:<br />
                             <span className="font-medium">{user?.name} ({user?.role})</span>
                         </div>
                         <button onClick={onLogout} className={`${commonLinkClasses} w-full text-left`}>
-                            <LogoutIcon /><span className="mx-3">Logout</span>
+                            <LogoutIcon /><span className="mx-3">Выход</span>
                         </button>
                     </div>
                 </nav>
@@ -102,7 +97,7 @@ const MainLayout = () => {
             <div className="flex-1 flex flex-col overflow-hidden">
                  {/* Mobile Header */}
                  <header className="lg:hidden p-4 bg-surface shadow flex justify-between items-center">
-                    <span className="text-lg font-semibold text-primary">{user.role === 'manager' ? 'Manager View' : 'Employee View'}</span>
+                    <span className="text-lg font-semibold text-primary">{user.role === 'manager' ? 'Режим менеджера' : 'Режим сотрудника'}</span>
                     <button onClick={toggleSidebar} className="text-secondary-dark hover:text-primary">
                          <MenuIcon />
                     </button>

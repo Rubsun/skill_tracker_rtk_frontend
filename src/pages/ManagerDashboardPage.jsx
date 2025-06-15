@@ -10,40 +10,29 @@ const AssignIcon = () => <svg className="w-4 h-4 inline mr-1" fill="currentColor
 const ChartBarIcon = () => <svg className="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a1 1 0 001 1h1.172l1.513 1.513a1 1 0 001.414 0l4-4a1 1 0 000-1.414l-1.586-1.586a1 1 0 00-1.414 0L10 10.586 8.707 9.293a1 1 0 00-1.414 0L3 13.586V5a1 1 0 00-.293-.707L2 3.586A1 1 0 001 4v9a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1-1zm14-1a1 1 0 00-1 1v10a1 1 0 001 1h1a1 1 0 001-1V3a1 1 0 00-1-1h-1z" clipRule="evenodd"></path></svg>;
 
 const ManagerDashboardPage = () => {
-    const [courses, setCourses] = useState([]);
-    const [users, setUsers] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useContext(AuthContext);
     
-    const [isAssignModalOpen, setAssignModalOpen] = useState(false);
-    const [selectedCourseId, setSelectedCourseId] = useState(null);
-    const [selectedUserId, setSelectedUserId] = useState('');
-
     useEffect(() => {
         const fetchData = async () => {
             if (!user?.token) { setLoading(false); return; }
             setLoading(true);
             try {
-                // Fetch courses created by the manager
-                const coursesPromise = fetch(`${API_URL}/courses/my`, {
+                // Fetch tasks created by the manager (filtered by manager id on backend)
+                const tasksPromise = fetch(`${API_URL}/tasks/?skip=0&limit=100`, {
                     headers: { 'Authorization': `Bearer ${user.token}` },
                 });
-                // Fetch all users for the assignment dropdown
-                const usersPromise = fetch(`${API_URL}/users/all`, {
-                    headers: { 'Authorization': `Bearer ${user.token}` }
-                });
-
-                const [coursesResponse, usersResponse] = await Promise.all([coursesPromise, usersPromise]);
                 
-                if (!coursesResponse.ok) throw new Error('Failed to fetch courses');
-                if (!usersResponse.ok) throw new Error('Failed to fetch users');
+                const tasksResponse = await tasksPromise;
                 
-                const coursesData = await coursesResponse.json();
-                const usersData = await usersResponse.json();
+                if (!tasksResponse.ok) throw new Error('Failed to fetch tasks');
+                
+                const tasksDataRaw = await tasksResponse.json();
+                const tasksData = Array.isArray(tasksDataRaw) ? tasksDataRaw[1] || [] : (tasksDataRaw?.items || tasksDataRaw || []);
 
-                setCourses(coursesData);
-                setUsers(usersData);
+                setTasks(tasksData);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -52,35 +41,6 @@ const ManagerDashboardPage = () => {
         };
         fetchData();
     }, [user]);
-    
-    const openAssignModal = (courseId) => {
-        setSelectedCourseId(courseId);
-        setAssignModalOpen(true);
-    };
-
-    const handleAssignCourse = async () => {
-        if (!selectedCourseId || !selectedUserId) {
-            alert("Please select a user.");
-            return;
-        }
-        try {
-            const response = await fetch(`${API_URL}/courses/${selectedCourseId}/assign`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`,
-                },
-                body: JSON.stringify({ user_id: selectedUserId }),
-            });
-            if (!response.ok) throw new Error("Assignment failed");
-            alert("Course assigned successfully!");
-            setAssignModalOpen(false);
-            setSelectedCourseId(null);
-            setSelectedUserId('');
-        } catch (err) {
-            alert(err.message);
-        }
-    };
 
     if (loading) return <LoadingSpinner />;
     if (error) return <div>Error: {error}</div>;
@@ -88,54 +48,36 @@ const ManagerDashboardPage = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Manager Dashboard</h1>
-                <Link to="/manager/course/new" className="btn btn-primary">Create New Course</Link>
+                <h1 className="text-3xl font-bold">Панель менеджера</h1>
+                <Link to="/manager/task/new" className="btn btn-primary">Создать задачу</Link>
             </div>
             
-            <h2 className="text-2xl font-semibold mb-4">My Courses</h2>
+            <h2 className="text-2xl font-semibold mb-4">Мои задачи</h2>
             <div className="bg-surface rounded-lg shadow overflow-hidden">
                 <table className="min-w-full">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left">Course Name</th>
-                            <th className="px-6 py-3 text-left">Lessons</th>
-                            <th className="px-6 py-3 text-left">Actions</th>
+                            <th className="px-6 py-3 text-left">Название задачи</th>
+                            <th className="px-6 py-3 text-left">Исполнитель</th>
+                            <th className="px-6 py-3 text-left">Прогресс</th>
+                            <th className="px-6 py-3 text-left">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {courses.map((course) => (
-                            <tr key={course.id}>
-                                <td className="px-6 py-4">{course.title}</td>
-                                <td className="px-6 py-4">{course.lessons.length}</td>
+                        {tasks.map((task) => (
+                            <tr key={task.id}>
+                                <td className="px-6 py-4">{task.title}</td>
+                                <td className="px-6 py-4">{task.employee_id || 'N/A'}</td>
+                                <td className="px-6 py-4">{task.progress}%</td>
                                 <td className="px-6 py-4 space-x-2">
-                                    <button onClick={() => alert('Edit not implemented yet')} className="btn btn-sm btn-ghost"><EditIcon /> Edit</button>
-                                    <button onClick={() => openAssignModal(course.id)} className="btn btn-sm btn-secondary"><AssignIcon /> Assign</button>
+                                    <Link to={`/manager/task/edit/${task.id}`} className="btn btn-sm btn-ghost"><EditIcon /> Редактировать</Link>
+                                    <Link to={`/manager/task/${task.id}`} className="btn btn-sm btn-primary"><ChartBarIcon /> Открыть</Link>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-
-            {isAssignModalOpen && (
-                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-xl">
-                        <h3 className="text-lg font-bold mb-4">Assign Course</h3>
-                        <select
-                            value={selectedUserId}
-                            onChange={(e) => setSelectedUserId(e.target.value)}
-                            className="w-full input mb-4"
-                        >
-                            <option value="" disabled>Select a user</option>
-                            {users.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
-                        </select>
-                        <div className="flex justify-end gap-4">
-                            <button onClick={() => setAssignModalOpen(false)} className="btn btn-ghost">Cancel</button>
-                            <button onClick={handleAssignCourse} className="btn btn-primary">Assign</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

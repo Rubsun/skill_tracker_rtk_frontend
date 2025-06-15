@@ -4,7 +4,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 
 const RegisterPage = () => {
-    const [name, setName] = useState('');
+    const [givenName, setGivenName] = useState('');
+    const [familyName, setFamilyName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('employee'); // Default role
@@ -18,7 +19,7 @@ const RegisterPage = () => {
         setError('');
         setLoading(true);
         try {
-            await register(email, name, password, role);
+            await register(email, givenName, familyName, password, role);
             // Decide where to redirect after registration
             // Redirecting to role-specific dashboard via home '/'
             navigate('/', { replace: true });
@@ -38,15 +39,27 @@ const RegisterPage = () => {
                 <form onSubmit={handleSubmit}>
                     {error && <p className="bg-error/10 text-error text-sm p-3 rounded mb-4">{error}</p>}
                     <div className="mb-4">
-                        <label htmlFor="name" className="block text-sm font-medium text-secondary mb-1">Full Name</label>
+                        <label htmlFor="givenName" className="block text-sm font-medium text-secondary mb-1">First Name</label>
                         <input
                             type="text"
-                            id="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            id="givenName"
+                            value={givenName}
+                            onChange={(e) => setGivenName(e.target.value)}
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
-                            placeholder="John Doe"
+                            placeholder="John"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="familyName" className="block text-sm font-medium text-secondary mb-1">Last Name</label>
+                        <input
+                            type="text"
+                            id="familyName"
+                            value={familyName}
+                            onChange={(e) => setFamilyName(e.target.value)}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
+                            placeholder="Doe"
                         />
                     </div>
                     <div className="mb-4">

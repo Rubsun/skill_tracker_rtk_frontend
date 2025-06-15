@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
+import { t } from '../i18n';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -48,7 +49,7 @@ const LoginPage = () => {
                         />
                     </div>
                     <div className="mb-6">
-                        <label htmlFor="password" className="block text-sm font-medium text-secondary mb-1">Password</label>
+                        <label htmlFor="password" className="block text-sm font-medium text-secondary mb-1">{t('password')}</label>
                         <input
                             type="password"
                             id="password"

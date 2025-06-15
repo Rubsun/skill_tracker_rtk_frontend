@@ -7,13 +7,10 @@ const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage')); 
 const EmployeeDashboardPage = React.lazy(() => import('./pages/EmployeeDashboardPage'));
 const ManagerDashboardPage = React.lazy(() => import('./pages/ManagerDashboardPage'));
-const CourseEditorPage = React.lazy(() => import('./pages/CourseEditorPage')); 
-const CourseAssignmentPage = React.lazy(() => import('./pages/CourseAssignmentPage'));
-const CourseViewerPage = React.lazy(() => import('./pages/CourseViewerPage'));
+const TaskEditorPage = React.lazy(() => import('./pages/TaskEditorPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const HomePage = React.lazy(() => import('./pages/HomePage')); 
-const ManagerHomePage = React.lazy(() => import('./pages/ManagerHomePage'));
-const ManagerCourseStatsPage = React.lazy(() => import('./pages/ManagerCourseStatsPage'));
+const TaskViewerPage = React.lazy(() => import('./pages/TaskViewerPage'));
 
 // --- Common Components ---
 import LoadingSpinner from './components/Common/LoadingSpinner'; 
@@ -66,10 +63,11 @@ const useAuth = () => {
         const userData = await userResponse.json();
         
         const userToStore = {
+            id: userData.id,
             token,
             email: userData.email,
             role: userData.role || 'employee', // Assuming role is returned, default to employee
-            name: userData.name || email.split('@')[0]
+            name: userData.given_name ? `${userData.given_name} ${userData.family_name}` : (userData.name || email.split('@')[0])
         };
         
         localStorage.setItem('skillTrackerUser', JSON.stringify(userToStore));
@@ -77,11 +75,20 @@ const useAuth = () => {
         return userToStore;
     };
 
-    const register = async (email, name, password, role) => {
+    const register = async (email, givenName, familyName, password, role) => {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name, role })
+            body: JSON.stringify({
+                email,
+                password,
+                given_name: givenName,
+                family_name: familyName,
+                role,
+                is_active: true,
+                is_superuser: false,
+                is_verified: false
+            })
         });
 
         if (!response.ok) {
@@ -138,18 +145,15 @@ function App() {
                             {/* Employee Routes */}
                             <Route element={<ProtectedRoute allowedRoles={['employee']} />}>
                                 <Route path="employee/dashboard" element={<EmployeeDashboardPage />} />
-                                <Route path="employee/course/:courseId" element={<CourseViewerPage />} />
+                                <Route path="employee/task/:taskId" element={<TaskViewerPage />} />
                             </Route>
 
                             {/* Manager Routes */}
                             <Route element={<ProtectedRoute allowedRoles={['manager']} />}>
-                                <Route path="manager/home" element={<ManagerHomePage />} />
                                 <Route path="manager/dashboard" element={<ManagerDashboardPage />} />
-                                <Route path="manager/course/new" element={<CourseEditorPage key="new" mode="create" />} /> 
-                                <Route path="manager/course/edit/:courseId" element={<CourseEditorPage key="edit" mode="edit" />} /> 
-                                <Route path="manager/course/assign/:courseId" element={<CourseAssignmentPage />} />
-                                <Route path="manager/course/:courseId" element={<CourseViewerPage />} /> 
-                                <Route path="manager/course/stats/:courseId" element={<ManagerCourseStatsPage />} />
+                                <Route path="manager/task/new" element={<TaskEditorPage key="new" mode="create" />} /> 
+                                <Route path="manager/task/edit/:taskId" element={<TaskEditorPage key="edit" mode="edit" />} /> 
+                                <Route path="manager/task/:taskId" element={<TaskViewerPage />} />
                             </Route>
                         </Route>
                     </Route>

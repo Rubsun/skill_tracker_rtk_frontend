@@ -18,7 +18,7 @@ const HomePage = () => {
 
     // Redirect based on user role
     if (user.role === 'manager') {
-        return <Navigate to="/manager/home" replace />;
+        return <Navigate to="/manager/dashboard" replace />;
     } else if (user.role === 'employee') {
         return <Navigate to="/employee/dashboard" replace />;
     } else {
