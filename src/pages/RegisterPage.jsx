@@ -26,20 +26,20 @@ const RegisterPage = () => {
         } catch (err) {
             console.error("Registration failed:", err);
             // Use a more specific error message from the API if available
-            setError('Registration failed. Please try again.');
+            setError('Не удалось зарегистрироваться. Попробуйте ещё раз.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-light to-primary">
-            <div className="bg-surface p-8 rounded-lg shadow-xl w-full max-w-md">
-                <h2 className="text-2xl font-bold text-center text-secondary-dark mb-6">Register for Skill Tracker</h2>
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="card-auth p-8 w-full max-w-md">
+                <h2 className="text-2xl font-bold text-center text-secondary-dark mb-6">Регистрация в Skill Tracker</h2>
                 <form onSubmit={handleSubmit}>
                     {error && <p className="bg-error/10 text-error text-sm p-3 rounded mb-4">{error}</p>}
                     <div className="mb-4">
-                        <label htmlFor="givenName" className="block text-sm font-medium text-secondary mb-1">First Name</label>
+                        <label htmlFor="givenName" className="block text-sm font-medium text-secondary mb-1">Имя</label>
                         <input
                             type="text"
                             id="givenName"
@@ -47,11 +47,11 @@ const RegisterPage = () => {
                             onChange={(e) => setGivenName(e.target.value)}
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
-                            placeholder="John"
+                            placeholder="Иван"
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="familyName" className="block text-sm font-medium text-secondary mb-1">Last Name</label>
+                        <label htmlFor="familyName" className="block text-sm font-medium text-secondary mb-1">Фамилия</label>
                         <input
                             type="text"
                             id="familyName"
@@ -59,11 +59,11 @@ const RegisterPage = () => {
                             onChange={(e) => setFamilyName(e.target.value)}
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent"
-                            placeholder="Doe"
+                            placeholder="Иванов"
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-secondary mb-1">Email</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-secondary mb-1">Электронная почта</label>
                         <input
                             type="email"
                             id="email"
@@ -75,7 +75,7 @@ const RegisterPage = () => {
                         />
                     </div>
                     <div className="mb-4">
-                        <label htmlFor="password" className="block text-sm font-medium text-secondary mb-1">Password</label>
+                        <label htmlFor="password" className="block text-sm font-medium text-secondary mb-1">Пароль</label>
                         <input
                             type="password"
                             id="password"
@@ -88,7 +88,7 @@ const RegisterPage = () => {
                         />
                     </div>
                     <div className="mb-6">
-                        <label htmlFor="role" className="block text-sm font-medium text-secondary mb-1">Role</label>
+                        <label htmlFor="role" className="block text-sm font-medium text-secondary mb-1">Роль</label>
                         <select
                             id="role"
                             value={role}
@@ -96,8 +96,8 @@ const RegisterPage = () => {
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-transparent bg-white"
                         >
-                            <option value="employee">Employee</option>
-                            <option value="manager">Manager</option>
+                            <option value="employee">Сотрудник</option>
+                            <option value="manager">Менеджер</option>
                         </select>
                     </div>
                     <button
@@ -105,11 +105,11 @@ const RegisterPage = () => {
                         disabled={loading}
                         className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-150 ease-in-out flex items-center justify-center disabled:opacity-50"
                     >
-                        {loading ? <LoadingSpinner /> : 'Register'}
+                        {loading ? <LoadingSpinner /> : 'Зарегистрироваться'}
                     </button>
                 </form>
                 <p className="text-center text-secondary text-sm mt-6">
-                    Already have an account? <Link to="/login" className="text-primary hover:underline">Login here</Link>
+                    Уже есть аккаунт? <Link to="/login" className="text-primary hover:underline">Войти</Link>
                 </p>
             </div>
         </div>

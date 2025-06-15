@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import { AuthContext } from '../contexts/AuthContext';
 import { PlusIcon, PencilIcon, TrashIcon } from '../components/Icons'; // Assuming you have icons
+import { toast } from 'react-hot-toast';
 
 const API_URL = 'http://localhost:8000/api/v1'; // Base API URL for backend endpoints
 
@@ -201,17 +202,18 @@ const TaskEditorPage = () => {
                 throw new Error(errorData.detail || 'Failed to save the task');
             }
             
-            alert(`Task ${isEditing ? 'updated' : 'created'} successfully!`);
+            toast.success(`Задача ${isEditing ? 'обновлена' : 'создана'}`);
             navigate('/manager/dashboard');
         } catch (err) {
-            setError(err.message);
+            console.error(err);
+            toast.error('Не удалось сохранить');
         } finally {
             setLoading(false);
         }
     };
 
     if (loading && !task.title) return <LoadingSpinner />;
-    if (error) return <div className="text-red-500">Error: {error}</div>;
+    if (error) return <div className="text-red-500">Произошла ошибка. Пожалуйста, попробуйте позже.</div>;
 
     return (
         <div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import { AuthContext } from '../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const API_URL = 'http://localhost:8000/api/v1';
 
@@ -97,9 +98,9 @@ const TaskViewerPage = () => {
             setTask(updatedTask);
             setStatus(updatedTask.status);
             setProgress(updatedTask.progress);
-            alert('Задача успешно обновлена!');
+            toast.success('Данные сохранены');
         } catch (err) {
-            setError(err.message);
+            console.error(err);
         }
     };
 
@@ -119,15 +120,16 @@ const TaskViewerPage = () => {
             const created = await res.json();
             setComments(prev => [...prev, created]);
             setNewComment('');
+            toast.success('Комментарий добавлен');
         } catch (err) {
-            alert(err.message);
+            console.error(err);
         }
     };
 
     const isCurrentUserAssigned = user && task && user.id === task.employee_id;
 
     if (loading) return <div className="flex justify-center items-center h-screen"><LoadingSpinner /></div>;
-    if (error) return <div className="text-center text-red-500 p-4">{error}</div>;
+    if (error) return <div className="text-center text-red-500 p-4">Произошла ошибка. Пожалуйста, попробуйте позже.</div>;
     if (!task) return <div className="text-center p-4">Task not found.</div>;
 
     return (
@@ -212,7 +214,8 @@ const TaskViewerPage = () => {
                                                                     const updated=await res.json();
                                                                     setComments(prev=>prev.map(cm=>cm.id===c.id?updated:cm));
                                                                     setEditingId(null);
-                                                                }catch(err){alert('Не удалось обновить');}
+                                                                    toast.success('Обновлено');
+                                                                }catch(err){console.error(err);}
                                                             }}>Сохранить</button>
                                                             <button className="btn btn-sm" onClick={()=>setEditingId(null)}>Отмена</button>
                                                         </div>
@@ -229,7 +232,8 @@ const TaskViewerPage = () => {
                                                                         const res=await fetch(`${API_URL}/comment/${c.id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${user.token}`}});
                                                                         if(!res.ok) throw new Error('Fail');
                                                                         setComments(prev=>prev.map(cm=>cm.id===c.id?{...cm,_deleted:true}:cm));
-                                                                    }catch(err){alert('Не удалось удалить');}
+                                                                        toast.success('Комментарий удалён');
+                                                                    }catch(err){console.error(err);}
                                                                 }}>Удалить</button>
                                                             </div>
                                                         )}

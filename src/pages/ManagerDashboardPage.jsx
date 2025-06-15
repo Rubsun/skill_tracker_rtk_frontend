@@ -57,22 +57,23 @@ const ManagerDashboardPage = () => {
     }, [user]);
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <div className="text-red-500">Ошибка: {error}</div>;
+    if (error) return <div className="text-red-500">Произошла ошибка. Пожалуйста, попробуйте позже.</div>;
 
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Панель менеджера</h1>
-                <Link to="/manager/task/new" className="btn btn-primary">Создать задачу</Link>
+                <Link to="/manager/task/new" className="btn-gradient">Создать задачу</Link>
             </div>
             
             <h2 className="text-2xl font-semibold mb-4">Мои задачи</h2>
-            <div className="bg-surface rounded-lg shadow overflow-hidden">
+            <div className="rounded-xl overflow-hidden bg-white/40 dark:bg-zinc-800/50 backdrop-blur-md shadow-lg">
                 <table className="min-w-full">
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left">Название задачи</th>
                             <th className="px-6 py-3 text-left">Исполнитель</th>
+                            <th className="px-6 py-3 text-left">Дедлайн</th>
                             <th className="px-6 py-3 text-left">Прогресс</th>
                             <th className="px-6 py-3 text-left">Действия</th>
                         </tr>
@@ -82,6 +83,19 @@ const ManagerDashboardPage = () => {
                             <tr key={task.id}>
                                 <td className="px-6 py-4">{task.title}</td>
                                 <td className="px-6 py-4">{employeeMap[task.employee_id] || task.employee_id || 'N/A'}</td>
+                                <td className="px-6 py-4">
+                                    {task.deadline ? (()=>{
+                                        const deadline=new Date(task.deadline);
+                                        const now=new Date();
+                                        const diff=Math.ceil((deadline-now)/(1000*60*60*24));
+                                        let color='bg-green-500';
+                                        let text=`${diff} дн.`;
+                                        if(diff<0){color='bg-red-500';text='Просрочено'}
+                                        else if(diff===0){color='bg-orange-500';text='Сегодня'}
+                                        else if(diff<=3){color='bg-yellow-400'}
+                                        return <span className={`inline-block px-2 py-0.5 text-xs text-white rounded-full ${color}`}>{text}</span>;
+                                    })(): '—'}
+                                </td>
                                 <td className="px-6 py-4">{task.progress}%</td>
                                 <td className="px-6 py-4 space-x-2">
                                     <Link to={`/manager/task/edit/${task.id}`} className="btn btn-sm btn-ghost"><EditIcon /> Редактировать</Link>

@@ -74,6 +74,7 @@ const MainLayout = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const [isDark, setIsDark] = React.useState(() => document.documentElement.classList.contains('dark'));
 
     const handleLogout = () => {
         logout();
@@ -82,6 +83,19 @@ const MainLayout = () => {
     };
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+    const toggleTheme = () => {
+        const html = document.documentElement;
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            setIsDark(false);
+        } else {
+            html.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            setIsDark(true);
+        }
+    };
 
     if (!user) {
         // This should ideally not be reached due to ProtectedRoute, but as a safeguard:
@@ -96,11 +110,16 @@ const MainLayout = () => {
             {/* Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden">
                  {/* Mobile Header */}
-                 <header className="lg:hidden p-4 bg-surface shadow flex justify-between items-center">
+                 <header className="lg:hidden p-4 card shadow flex justify-between items-center">
                     <span className="text-lg font-semibold text-primary">{user.role === 'manager' ? 'Режим менеджера' : 'Режим сотрудника'}</span>
-                    <button onClick={toggleSidebar} className="text-secondary-dark hover:text-primary">
-                         <MenuIcon />
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button onClick={toggleTheme} className="text-secondary-dark hover:text-primary">
+                            {isDark ? '🌞' : '🌙'}
+                        </button>
+                        <button onClick={toggleSidebar} className="text-secondary-dark hover:text-primary">
+                             <MenuIcon />
+                        </button>
+                    </div>
                 </header>
 
                 {/* Main Content */}
