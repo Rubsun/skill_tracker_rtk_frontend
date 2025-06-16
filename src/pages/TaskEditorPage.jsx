@@ -210,7 +210,21 @@ const TaskEditorPage = () => {
             
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || 'Failed to save the task');
+
+                // Обработка валидационной ошибки даты в будущем
+                if (errorData && Array.isArray(errorData.detail)) {
+                    const firstErr = errorData.detail[0];
+                    if (firstErr?.type === 'datetime_future') {
+                        toast.error('Дедлайн должен быть в будущем.');
+                        setLoading(false);
+                        return; // прерываем дальнейшую обработку
+                    }
+                }
+
+                // Другие ошибки
+                toast.error(typeof errorData.detail === 'string' ? errorData.detail : 'Не удалось сохранить');
+                setLoading(false);
+                return;
             }
             
             toast.success(`Задача ${isEditing ? 'обновлена' : 'создана'}`);
