@@ -279,8 +279,8 @@ const TaskEditorPage = () => {
                     <input type="range" name="progress" id="progress" min="0" max="100" value={task.progress} onChange={handleChange} className="range range-primary" />
                 </div>
                 <div className="flex justify-end gap-4">
-                    <button type="button" onClick={() => navigate(-1)} className="btn btn-ghost">Отмена</button>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                    <button type="button" onClick={() => navigate(-1)} className="btn btn-gradient-secondary">Отмена</button>
+                    <button type="submit" className="btn btn-gradient" disabled={loading}>
                         {loading ? 'Сохранение...' : (isEditing ? 'Сохранить' : 'Создать')}
                     </button>
                 </div>
