@@ -275,7 +275,10 @@ const TaskEditorPage = () => {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="progress" className="label">Прогресс ({task.progress}%)</label>
+                    <label htmlFor="progress" className="label flex justify-between">
+                        <span>Прогресс</span>
+                        <span className="w-12 text-right">{task.progress}%</span>
+                    </label>
                     <input type="range" name="progress" id="progress" min="0" max="100" value={task.progress} onChange={handleChange} className="range range-primary" />
                 </div>
                 <div className="flex justify-end gap-4">
