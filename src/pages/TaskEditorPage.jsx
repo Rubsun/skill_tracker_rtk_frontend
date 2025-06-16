@@ -176,13 +176,24 @@ const TaskEditorPage = () => {
         const url = isEditing ? `${API_URL}/tasks/${taskId}` : `${API_URL}/tasks/`;
         const method = isEditing ? 'PUT' : 'POST';
         
-        // Ensure deadline is in ISO format if it exists
+        // --- Безопасная обработка дедлайна ---
+        let deadlineISO = null;
+        if (task.deadline) {
+            const parsed = new Date(task.deadline);
+            if (isNaN(parsed.getTime())) {
+                setLoading(false);
+                toast.error('Некорректная дата дедлайна.');
+                return; // Прерываем отправку, чтобы не упасть RangeError
+            }
+            deadlineISO = parsed.toISOString();
+        }
+
         const taskData = {
             ...task,
             progress: Number(task.progress),
-            deadline: task.deadline ? new Date(task.deadline).toISOString() : null,
+            deadline: deadlineISO, // может быть null, корректная строка ISO или undefined
         };
-
+        
         // For PUT, only send non-null fields
         const payload = isEditing ? Object.fromEntries(Object.entries(taskData).filter(([_, v]) => v != null)) : taskData;
 
@@ -213,7 +224,6 @@ const TaskEditorPage = () => {
     };
 
     if (loading && !task.title) return <LoadingSpinner />;
-    if (error) return <div className="text-red-500">Произошла ошибка. Пожалуйста, попробуйте позже.</div>;
 
     return (
         <div>
